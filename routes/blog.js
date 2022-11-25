@@ -53,7 +53,6 @@ router.post('/', (req, res, next) => {
 router.put('/:postId', (req, res, next) => {
 
     Post.findById(req.params.postId, (err, thePost) => {
-        console.log(thePost);
         if (err) {
             res.sendStatus(500);
             return next(err);
