@@ -1,28 +1,93 @@
 const express = require('express');
+const async = require('async');
+const Post = require('../models/postModel')
+const Comment = require('../models/commentModel');
 
 const router = express.Router();
 
 
 //Posts
-router.get('/', (req, res) => {
-    res.json({message: "here is all the posts!"})
+router.get('/', (req, res, next) => {
+    Post.where('title')
+    .exec((err, allPosts) => {
+        if (err) {
+            res.sendStatus(500);
+            return next(err);
+        }
+
+        res.json({posts: allPosts});
+    })
 })
 
 //CRUD Operations
-router.get('/:postId', (req, res) => {
-    res.json({message: "here is a singular post!"})
+router.get('/:postId', (req, res, next) => {
+    Post.findById(req.params.postId, (err, post) => {
+        if (err) {
+            res.sendStatus(500);
+            return next(err);
+        }
+
+        res.json({post});
+    })
 })
 
-router.post('/', (req, res) => {
-    res.json({message: "Created a new post!"})
+router.post('/', (req, res, next) => {
+    const newPost = new Post({
+        title: req.body.title,
+        body: req.body.description,
+        timestamp: new Date(),
+        comments: [],
+        isPublished: false
+    })
+
+    newPost.save((err) => {
+        if (err) {
+            res.sendStatus(500);
+            return next(err);
+        }
+
+        res.sendStatus(200);
+    });
 })
 
-router.put('/:postId', (req, res) => {
-    res.json({message: "Updated a post!"})
+router.put('/:postId', (req, res, next) => {
+
+    Post.findById(req.params.postId, (err, thePost) => {
+        console.log(thePost);
+        if (err) {
+            res.sendStatus(500);
+            return next(err);
+        }
+
+        const newPost = new Post({
+            _id: req.params.postId,
+            title: req.body.title,
+            body: req.body.description,
+            timestamp: new Date(),
+            comments: typeof thePost.comments === "undefined" ? [] : thePost.comments,
+            isPublished: thePost.isPublished
+        })
+
+        Post.findByIdAndUpdate(req.params.postId, newPost, (err) => {
+            if (err) {
+                res.sendStatus(500);
+                return next(err);
+            }
+    
+            res.sendStatus(200);
+        })
+    });
+
 })
 
-router.delete('/:postId', (req, res) => {
-    res.json({message: "Deleted a post!"})
+router.delete('/:postId', (req, res, next) => {
+    Post.findByIdAndDelete(req.params.postId, (err) => {
+        if (err) {
+            res.sendStatus(500);
+            return next(err);
+        }
+        res.sendStatus(200);
+    })
 })
 
 
