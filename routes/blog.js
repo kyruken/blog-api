@@ -31,6 +31,10 @@ router.get('/:postId/comments', (req, res) => {
     res.json({message: `Here is all the comments for this post!`})
 })
 
+router.post('/:postId/comments', (req, res) => {
+    res.json({message: "Created a new comment!"})
+})
+
 router.get('/:postId/comments/commentId', (req, res) => {
     res.json({message: `Here is a singular comment for this post!`})
 })
