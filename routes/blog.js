@@ -5,7 +5,6 @@ const Comment = require('../models/commentModel');
 
 const router = express.Router();
 
-
 //Posts
 router.get('/', (req, res, next) => {
     Post.where('title')
@@ -64,6 +63,8 @@ router.put('/:postId', (req, res, next) => {
             body: req.body.description,
             timestamp: new Date(),
             comments: typeof thePost.comments === "undefined" ? [] : thePost.comments,
+            //When we connect a frontend, we need to change isPublished
+            //to take in a req.body.isPublished 
             isPublished: thePost.isPublished
         })
 
@@ -91,16 +92,79 @@ router.delete('/:postId', (req, res, next) => {
 
 
 //Comments
-router.get('/:postId/comments', (req, res) => {
-    res.json({message: `Here is all the comments for this post!`})
+router.get('/:postId/comments', (req, res, next) => {
+    Post.findById(req.params.postId, (err, thePost) => {
+        if (err) {
+            res.sendStatus(500);
+            return next(err);
+        }
+
+        res.json({comments: thePost.comments});
+    })
 })
 
-router.post('/:postId/comments', (req, res) => {
-    res.json({message: "Created a new comment!"})
+router.post('/:postId/comments', (req, res, next) => {
+    Post.findById(req.params.postId, (err, thePost) => {
+        if (err) {
+            res.sendStatus(500);
+            return next(err);
+        }
+
+        const newComment = new Comment({
+            username: req.body.username,
+            comment: req.body.comment,
+            timestamp: new Date()
+        })
+
+        newComment.save();
+
+        thePost.comments.push(newComment);
+        thePost.save((err) => {
+            if (err) {
+                res.sendStatus(500);
+                return next(err);
+            }
+
+            res.sendStatus(200);
+        })
+    })
+    
 })
 
-router.get('/:postId/comments/commentId', (req, res) => {
-    res.json({message: `Here is a singular comment for this post!`})
+router.get('/:postId/comments/:commentId', (req, res, next) => {
+    Comment.findById(req.params.commentId, (err, theComment) => {
+        if (err) {
+            res.sendStatus(500);
+            return next(err);
+        }
+
+        res.json({comment: theComment});
+    })
+})
+
+router.delete('/:postId/comments/:commentId', (req, res, next) => {
+    Post.findById(req.params.postId, (err, thePost) => {
+        if (err) {
+            res.sendStatus(500);
+        }
+        for (let x = 0; x < thePost.comments.length; x++) {
+            if(thePost.comments[x]._id.toString() === req.params.commentId.toString()) {
+                thePost.comments.splice(x, 1);
+                break;
+            }
+        }
+        
+        thePost.save();
+    });
+
+    Comment.findByIdAndDelete(req.params.commentId, (err) => {
+        if (err) {
+            res.sendStatus(500);
+            return next(err);
+        }
+        res.sendStatus(200);
+    });
+
 })
 
 module.exports = router;
