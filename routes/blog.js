@@ -95,7 +95,7 @@ router.put('/:postId', verifyToken, (req, res, next) => {
     })
 })
 
-router.delete('/:postId', (req, res, next) => {
+router.delete('/:postId', verifyToken, (req, res, next) => {
 
     jwt.verify(req.token, process.env.SECRET_KEY, (err) => {
         if (err) {
@@ -105,7 +105,6 @@ router.delete('/:postId', (req, res, next) => {
         Post.findByIdAndDelete(req.params.postId, (err) => {
             if (err) {
                 res.sendStatus(500);
-                return next(err);
             }
             res.sendStatus(200);
         })
@@ -164,7 +163,7 @@ router.get('/:postId/comments/:commentId', (req, res, next) => {
     })
 })
 
-router.delete('/:postId/comments/:commentId', (req, res, next) => {
+router.delete('/:postId/comments/:commentId', verifyToken, (req, res, next) => {
     jwt.verify(req.token, process.env.SECRET_KEY, (err) => {
         if (err) {
             res.sendStatus(403);
