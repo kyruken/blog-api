@@ -72,9 +72,7 @@ router.put('/:postId', verifyToken, (req, res, next) => {
                 body: req.body.description,
                 timestamp: new Date(),
                 comments: typeof thePost.comments === "undefined" ? [] : thePost.comments,
-                //When we connect a frontend, we need to change isPublished
-                //to take in a req.body.isPublished 
-                isPublished: thePost.isPublished
+                isPublished: req.body.isPublished !== "undefined" ? true : false
             })
     
             Post.findByIdAndUpdate(req.params.postId, newPost, (err) => {
