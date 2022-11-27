@@ -13,7 +13,6 @@ router.get('/', (req, res, next) => {
     .exec((err, allPosts) => {
         if (err) {
             res.sendStatus(500);
-            return next(err);
         }
 
         res.json({posts: allPosts});
@@ -25,7 +24,6 @@ router.get('/:postId', (req, res, next) => {
     Post.findById(req.params.postId, (err, post) => {
         if (err) {
             res.sendStatus(500);
-            return next(err);
         }
 
         res.json({post});
@@ -35,7 +33,6 @@ router.get('/:postId', (req, res, next) => {
 router.post('/', verifyToken, (req, res, next) => {
     jwt.verify(req.token, process.env.SECRET_KEY, (err) => {
         if (err) {
-            res.send(err);
             res.sendStatus(403);
         } else {
             const newPost = new Post({
@@ -49,7 +46,6 @@ router.post('/', verifyToken, (req, res, next) => {
             newPost.save((err) => {
                 if (err) {
                     res.sendStatus(500);
-                    return next(err);
                 }
         
                 res.sendStatus(200);
@@ -68,7 +64,6 @@ router.put('/:postId', verifyToken, (req, res, next) => {
         Post.findById(req.params.postId, (err, thePost) => {
             if (err) {
                 res.sendStatus(500);
-                return next(err);
             }
     
             const newPost = new Post({
@@ -85,7 +80,6 @@ router.put('/:postId', verifyToken, (req, res, next) => {
             Post.findByIdAndUpdate(req.params.postId, newPost, (err) => {
                 if (err) {
                     res.sendStatus(500);
-                    return next(err);
                 }
         
                 res.sendStatus(200);
@@ -117,7 +111,6 @@ router.get('/:postId/comments', (req, res, next) => {
     Post.findById(req.params.postId, (err, thePost) => {
         if (err) {
             res.sendStatus(500);
-            return next(err);
         }
 
         res.json({comments: thePost.comments});
@@ -128,7 +121,6 @@ router.post('/:postId/comments', (req, res, next) => {
     Post.findById(req.params.postId, (err, thePost) => {
         if (err) {
             res.sendStatus(500);
-            return next(err);
         }
 
         const newComment = new Comment({
@@ -143,7 +135,6 @@ router.post('/:postId/comments', (req, res, next) => {
         thePost.save((err) => {
             if (err) {
                 res.sendStatus(500);
-                return next(err);
             }
 
             res.sendStatus(200);
@@ -156,7 +147,6 @@ router.get('/:postId/comments/:commentId', (req, res, next) => {
     Comment.findById(req.params.commentId, (err, theComment) => {
         if (err) {
             res.sendStatus(500);
-            return next(err);
         }
 
         res.json({comment: theComment});
@@ -186,7 +176,6 @@ router.delete('/:postId/comments/:commentId', verifyToken, (req, res, next) => {
         Comment.findByIdAndDelete(req.params.commentId, (err) => {
             if (err) {
                 res.sendStatus(500);
-                return next(err);
             }
             res.sendStatus(200);
         });    
