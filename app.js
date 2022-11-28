@@ -4,6 +4,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 const { default: mongoose } = require('mongoose');
 const bcrypt = require('bcryptjs');
 const app = express();
@@ -17,6 +18,11 @@ const db = mongoose.connection;
 db.on('error', error => {console.error(error)})
 
 app.use(express.urlencoded({extended: true}));
+
+app.use(cors({
+    origin: 'http://127.0.0.1:5173',
+    methods: ['GET', 'POST']
+}))
 
 app.use('/posts', blogRouter)
 
