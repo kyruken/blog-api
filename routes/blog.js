@@ -106,12 +106,14 @@ router.delete('/:postId', verifyToken, (req, res, next) => {
 
 //Comments
 router.get('/:postId/comments', (req, res, next) => {
-    Post.findById(req.params.postId, (err, thePost) => {
+    Post.findById(req.params.postId)
+    .populate('comments')
+    .exec((err, data) => {
         if (err) {
             res.sendStatus(500);
         }
 
-        res.json({comments: thePost.comments});
+        res.json({comments: data.comments});
     })
 })
 
