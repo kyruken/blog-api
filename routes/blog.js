@@ -12,7 +12,7 @@ router.get('/', (req, res, next) => {
     Post.where('title')
     .exec((err, allPosts) => {
         if (err) {
-            res.sendStatus(500);
+            return res.sendStatus(500);
         }
 
         res.json({posts: allPosts});
@@ -23,7 +23,7 @@ router.get('/', (req, res, next) => {
 router.get('/:postId', (req, res, next) => {
     Post.findById(req.params.postId, (err, post) => {
         if (err) {
-            res.sendStatus(500);
+            return res.sendStatus(500);
         }
 
         res.json({post});
@@ -33,7 +33,7 @@ router.get('/:postId', (req, res, next) => {
 router.post('/', verifyToken, (req, res, next) => {
     jwt.verify(req.token, process.env.SECRET_KEY, (err) => {
         if (err) {
-            res.sendStatus(403);
+            return res.sendStatus(403);
         } else {
             const newPost = new Post({
                 title: req.body.title,
@@ -58,12 +58,12 @@ router.put('/:postId', verifyToken, (req, res, next) => {
 
     jwt.verify(req.token, process.env.SECRET_KEY, (err) => {
         if (err) {
-            res.sendStatus(403);
+            return res.sendStatus(403);
         }
     
         Post.findById(req.params.postId, (err, thePost) => {
             if (err) {
-                res.sendStatus(500);
+                return res.sendStatus(500);
             }
     
             const newPost = new Post({
@@ -77,7 +77,7 @@ router.put('/:postId', verifyToken, (req, res, next) => {
     
             Post.findByIdAndUpdate(req.params.postId, newPost, (err) => {
                 if (err) {
-                    res.sendStatus(500);
+                    return res.sendStatus(500);
                 }
         
                 res.sendStatus(200);
@@ -91,12 +91,12 @@ router.delete('/:postId', verifyToken, (req, res, next) => {
 
     jwt.verify(req.token, process.env.SECRET_KEY, (err) => {
         if (err) {
-            res.sendStatus(403);
+            return res.sendStatus(403);
         }
 
         Post.findByIdAndDelete(req.params.postId, (err) => {
             if (err) {
-                res.sendStatus(500);
+                return res.sendStatus(500);
             }
             res.sendStatus(200);
         })
@@ -110,7 +110,7 @@ router.get('/:postId/comments', (req, res, next) => {
     .populate('comments')
     .exec((err, data) => {
         if (err) {
-            res.sendStatus(500);
+            return res.sendStatus(500);
         }
 
         res.json({comments: data.comments});
@@ -120,7 +120,7 @@ router.get('/:postId/comments', (req, res, next) => {
 router.post('/:postId/comments', (req, res, next) => {
     Post.findById(req.params.postId, (err, thePost) => {
         if (err) {
-            res.sendStatus(500);
+            return res.sendStatus(500);
         }
 
         const newComment = new Comment({
@@ -134,7 +134,7 @@ router.post('/:postId/comments', (req, res, next) => {
         thePost.comments.push(newComment);
         thePost.save((err) => {
             if (err) {
-                res.sendStatus(500);
+                return res.sendStatus(500);
             }
 
             res.sendStatus(200);
@@ -146,7 +146,7 @@ router.post('/:postId/comments', (req, res, next) => {
 router.get('/:postId/comments/:commentId', (req, res, next) => {
     Comment.findById(req.params.commentId, (err, theComment) => {
         if (err) {
-            res.sendStatus(500);
+            return res.sendStatus(500);
         }
 
         res.json({comment: theComment});
@@ -156,12 +156,12 @@ router.get('/:postId/comments/:commentId', (req, res, next) => {
 router.delete('/:postId/comments/:commentId', verifyToken, (req, res, next) => {
     jwt.verify(req.token, process.env.SECRET_KEY, (err) => {
         if (err) {
-            res.sendStatus(403);
+            return res.sendStatus(403);
         }
 
         Post.findById(req.params.postId, (err, thePost) => {
             if (err) {
-                res.sendStatus(500);
+                return res.sendStatus(500);
             }
             for (let x = 0; x < thePost.comments.length; x++) {
                 if(thePost.comments[x]._id.toString() === req.params.commentId.toString()) {
@@ -175,7 +175,7 @@ router.delete('/:postId/comments/:commentId', verifyToken, (req, res, next) => {
     
         Comment.findByIdAndDelete(req.params.commentId, (err) => {
             if (err) {
-                res.sendStatus(500);
+                return res.sendStatus(500);
             }
             res.sendStatus(200);
         });    
@@ -193,7 +193,7 @@ function verifyToken(req, res, next) {
         req.token = bearerToken;
         next();
     } else {
-        res.sendStatus(403);
+       return res.sendStatus(403);
     }
 }
 
