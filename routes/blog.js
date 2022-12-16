@@ -68,11 +68,11 @@ router.put('/:postId', verifyToken, (req, res, next) => {
     
             const newPost = new Post({
                 _id: req.params.postId,
-                title: req.body.title,
-                body: req.body.description,
+                title: req.body.title ? req.body.title : thePost.title,
+                body: req.body.description ? req.body.description : thePost.description,
                 timestamp: new Date(),
                 comments: typeof thePost.comments === "undefined" ? [] : thePost.comments,
-                isPublished: req.body.isPublished !== "undefined" ? true : false
+                isPublished: req.body.isPublished !== "undefined" ? req.body.isPublished : thePost.isPublished
             })
     
             Post.findByIdAndUpdate(req.params.postId, newPost, (err) => {
