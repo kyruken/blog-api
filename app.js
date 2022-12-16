@@ -42,7 +42,7 @@ app.post('/api/login', (req, res, next) => {
             }
 
             if (match) {
-                jwt.sign({user}, process.env.SECRET_KEY, {expiresIn: '1m'}, (err, token) => {
+                jwt.sign({user}, process.env.SECRET_KEY, {expiresIn: '30m'}, (err, token) => {
                     res.json({token});
                 });
                 
