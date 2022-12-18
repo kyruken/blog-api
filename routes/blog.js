@@ -8,14 +8,29 @@ const Comment = require('../models/commentModel');
 const router = express.Router();
 
 //Blogs
-router.get('/', (req, res, next) => {
-    Post.where('title')
-    .exec((err, allPosts) => {
+//verify token, if token isn't verified, give isPublished == true posts
+//if token is verified(admin page), give all posts
+router.get('/', verifyToken, (req, res, next) => {
+    jwt.verify(req.token, process.env.SECRET_KEY, (err) => {
         if (err) {
-            return res.sendStatus(500);
-        }
+            Post.where('title').where('isPublished').equals('true')
+            .exec((err, publishedPosts) => {
+                if (err) {
+                    return res.sendStatus(500);
+                }
 
-        res.json({posts: allPosts});
+                res.json({posts: publishedPosts});
+            })
+        } else {
+            Post.where('title')
+            .exec((err, allPosts) => {
+                if (err) {
+                    return res.sendStatus(500);
+                }
+
+                res.json({posts: allPosts});
+            })
+        }
     })
 })
 
@@ -191,10 +206,10 @@ function verifyToken(req, res, next) {
         const bearer = bearerHeader.split(' ');
         const bearerToken = bearer[1];
         req.token = bearerToken;
-        next();
-    } else {
-       return res.sendStatus(403);
     }
+    //used to be res.sendStatus(403), but I want blog page to be able to get
+    //posts if an error occurs
+    next();
 }
 
 module.exports = router;
